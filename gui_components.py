@@ -11,7 +11,7 @@ class GraphRenderer:
     """
     
     def __init__(self):
-        self.default_canvas_size = [800, 600]
+        self.default_canvas_size = [1400, 800]  # Larger default for full screen
         self.vertex_colors = COLORS['vertex_colors']
         self.edge_color = COLORS['edge_color']
         self.background_color = COLORS['background_color']

@@ -344,25 +344,35 @@ class GeometryEngine:
         target_center_x = (bounds[0] + bounds[2]) / 2
         target_center_y = (bounds[1] + bounds[3]) / 2
         
-        # Translate to center
-        dx = target_center_x - curr_center_x
-        dy = target_center_y - curr_center_y
-        
-        self.translate_graph(graph, dx, dy)
-        
-        # Scale to fit if necessary
+        # Calculate graph dimensions
         graph_width = max_x - min_x
         graph_height = max_y - min_y
         bounds_width = bounds[2] - bounds[0]
         bounds_height = bounds[3] - bounds[1]
         
-        # Add some padding
-        padding_factor = 0.9
+        # Scale to fit with padding
+        padding_factor = 0.8  # Use more conservative padding
+        scale_factor = 1.0
         
         if graph_width > 0 and graph_height > 0:
             scale_x = (bounds_width * padding_factor) / graph_width
             scale_y = (bounds_height * padding_factor) / graph_height
             scale_factor = min(scale_x, scale_y)
             
-            if scale_factor < 1.0:  # Only scale down if graph is too large
-                self.scale_graph(graph, scale_factor, (target_center_x, target_center_y))
+            # Apply scaling first (around current center)
+            self.scale_graph(graph, scale_factor, (curr_center_x, curr_center_y))
+        
+        # Recalculate center after scaling
+        min_x = min(v.x for v in graph.vertices.values())
+        max_x = max(v.x for v in graph.vertices.values())
+        min_y = min(v.y for v in graph.vertices.values())
+        max_y = max(v.y for v in graph.vertices.values())
+        
+        curr_center_x = (min_x + max_x) / 2
+        curr_center_y = (min_y + max_y) / 2
+        
+        # Translate to center
+        dx = target_center_x - curr_center_x
+        dy = target_center_y - curr_center_y
+        
+        self.translate_graph(graph, dx, dy)

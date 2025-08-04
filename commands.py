@@ -116,16 +116,16 @@ class CommandProcessor:
                 st.warning("No vertices to center")
                 return False
             
-            # Define bounds based on canvas size with some padding
-            padding = 50
+            # Define bounds based on canvas size with generous padding
+            padding = 100
             bounds = (padding, padding, canvas_size[0] - padding, canvas_size[1] - padding)
+            
+            # First reset zoom and pan to get true positions
+            st.session_state.zoom_level = 1.0
+            st.session_state.pan_offset = [0, 0]
             
             # Center graph in bounds
             self.geometry.center_graph_in_bounds(self.graph, bounds)
-            
-            # Reset zoom and pan in session state
-            st.session_state.zoom_level = 1.0
-            st.session_state.pan_offset = [0, 0]
             
             st.success("Graph centered and fitted to screen")
             return True
