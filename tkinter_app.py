@@ -49,8 +49,9 @@ class GraphCanvas(tk.Canvas):
         self.focus_set()
         self.bind("<Key>", self.on_key_press)
         
-        # Initial triangle
+        # Initial triangle with proper scaling
         self.command_processor.start_triangle()
+        self.center_graph()  # Center and scale properly after creation
         self.update_display()
     
     def transform_coords(self, x: float, y: float) -> Tuple[float, float]:
@@ -209,14 +210,14 @@ class GraphCanvas(tk.Canvas):
         # Determine scroll direction
         if event.delta > 0 or event.num == 4:
             # Zoom in
-            zoom_factor = 1.1
+            zoom_factor = 1.08  # Smaller zoom increments
         else:
             # Zoom out
-            zoom_factor = 0.9
+            zoom_factor = 0.92
         
         # Apply zoom
         old_zoom = self.zoom_level
-        self.zoom_level = max(0.1, min(5.0, self.zoom_level * zoom_factor))
+        self.zoom_level = max(0.05, min(3.0, self.zoom_level * zoom_factor))  # Better zoom limits
         
         # Adjust pan offset to zoom towards mouse position
         mouse_x, mouse_y = event.x, event.y
@@ -282,15 +283,46 @@ class GraphCanvas(tk.Canvas):
     def center_graph(self):
         """Center and fit graph to canvas"""
         try:
-            canvas_size = (self.winfo_width(), self.winfo_height())
-            self.command_processor.center_graph(canvas_size)
+            if not self.graph.vertices:
+                return
             
-            # Reset zoom and pan
-            self.zoom_level = 1.0
+            # Get canvas dimensions
+            canvas_width = self.winfo_width() or 1480
+            canvas_height = self.winfo_height() or 820
+            
+            # Calculate current graph bounds
+            min_x = min(v.x for v in self.graph.vertices.values())
+            max_x = max(v.x for v in self.graph.vertices.values())
+            min_y = min(v.y for v in self.graph.vertices.values())
+            max_y = max(v.y for v in self.graph.vertices.values())
+            
+            # Calculate graph dimensions
+            graph_width = max_x - min_x
+            graph_height = max_y - min_y
+            
+            # Calculate center of graph
+            graph_center_x = (min_x + max_x) / 2
+            graph_center_y = (min_y + max_y) / 2
+            
+            # Reset pan offset to center the graph
             self.pan_offset = [0, 0]
             
+            # Calculate appropriate zoom level to fit graph with padding
+            if graph_width > 0 and graph_height > 0:
+                padding = 0.8  # Leave 20% padding
+                zoom_x = (canvas_width * padding) / graph_width
+                zoom_y = (canvas_height * padding) / graph_height
+                self.zoom_level = min(zoom_x, zoom_y, 1.0)  # Don't zoom in beyond 1.0
+                self.zoom_level = max(self.zoom_level, 0.1)  # Ensure minimum zoom
+            else:
+                self.zoom_level = 0.5
+            
+            # Apply translation to center the graph origin at canvas center
+            self.pan_offset[0] = -graph_center_x * self.zoom_level
+            self.pan_offset[1] = -graph_center_y * self.zoom_level
+            
             self.update_display()
-            self.parent.update_status("Graph centered and fitted")
+            self.parent.update_status(f"Graph centered and fitted (zoom: {self.zoom_level:.2f}x)")
         except Exception as e:
             messagebox.showerror("Error", str(e))
     
@@ -302,12 +334,12 @@ class GraphCanvas(tk.Canvas):
     
     def zoom_in(self):
         """Zoom in"""
-        self.zoom_level = min(self.zoom_level * 1.2, 5.0)
+        self.zoom_level = min(self.zoom_level * 1.15, 3.0)  # Smaller increments, lower max
         self.update_display()
     
     def zoom_out(self):
         """Zoom out"""
-        self.zoom_level = max(self.zoom_level / 1.2, 0.1)
+        self.zoom_level = max(self.zoom_level / 1.15, 0.05)  # Smaller increments, lower min
         self.update_display()
     
     def add_random_vertex(self):
@@ -416,6 +448,8 @@ class MainWindow:
                   command=self.canvas.zoom_in).pack(side=tk.LEFT, padx=2)
         ttk.Button(row1, text="Zoom Out", 
                   command=self.canvas.zoom_out).pack(side=tk.LEFT, padx=2)
+        ttk.Button(row1, text="Reset Zoom", 
+                  command=self.reset_view).pack(side=tk.LEFT, padx=2)
         
         # Separator
         ttk.Separator(row1, orient=tk.VERTICAL).pack(side=tk.LEFT, fill=tk.Y, padx=5)
@@ -529,6 +563,13 @@ class MainWindow:
         else:
             if self.manual_mode_label:
                 self.manual_mode_label.pack_forget()
+    
+    def reset_view(self):
+        """Reset zoom and pan to default values"""
+        self.canvas.zoom_level = 0.5  # Start with a reasonable zoom level
+        self.canvas.pan_offset = [0, 0]
+        self.canvas.update_display()
+        self.update_status("View reset to default zoom and position")
     
     def on_window_resize(self, event):
         """Handle window resize"""
