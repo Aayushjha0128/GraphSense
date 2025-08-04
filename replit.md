@@ -1,6 +1,6 @@
 # Overview
 
-This is a Planar Triangulated Graph Visualizer built with Streamlit that allows users to interactively create and manipulate planar graphs while maintaining geometric constraints. The application focuses on computational geometry principles, ensuring that all vertices remain on the periphery, edges don't cross, and the graph maintains planarity throughout operations. Users can add vertices dynamically, apply geometric transformations, and visualize the graph with different rendering modes.
+This is a Planar Triangulated Graph Visualizer built with Tkinter that allows users to interactively create and manipulate planar graphs while maintaining geometric constraints. The application focuses on computational geometry principles, ensuring that all vertices remain on the periphery, edges don't cross, and the graph maintains planarity throughout operations. Users can add vertices dynamically, apply geometric transformations, and visualize the graph with different rendering modes. The Tkinter version provides better mouse interaction, keyboard shortcuts, and eliminates UI conflicts.
 
 # User Preferences
 
@@ -9,10 +9,10 @@ Preferred communication style: Simple, everyday language.
 # System Architecture
 
 ## Frontend Architecture
-The application uses **Streamlit** as the web framework with a component-based architecture:
-- **Main Application (`app.py`)**: Orchestrates the UI layout and handles session state management
-- **GUI Components (`gui_components.py`)**: Manages graph rendering using `streamlit_drawable_canvas` for interactive visualization
-- **Session State Management**: Maintains graph state, view settings, and user interactions across page refreshes
+The application uses **Tkinter** as the desktop GUI framework with a clean widget-based architecture:
+- **Main Application (`tkinter_app.py`)**: Contains the MainWindow class managing the overall application and GraphCanvas for visualization
+- **Custom Canvas Widget (`GraphCanvas`)**: Handles all graph rendering, mouse interactions, and keyboard shortcuts
+- **Native Event Handling**: Direct mouse and keyboard event processing for responsive interactions
 
 ## Core Engine Components
 The system follows a modular design with specialized engines:
@@ -51,19 +51,31 @@ The system uses a centralized configuration approach:
 - **State Management**: Streamlit session state for persistence
 - **Component Architecture**: Modular UI components for different visualization aspects
 
+# Recent Changes (August 2025)
+
+**Migration to Tkinter (August 4, 2025)**
+- Completely rewrote the application using Tkinter instead of Streamlit
+- Resolved duplicate button ID issues and UI conflicts
+- Implemented native mouse interactions with proper click detection, dragging, and scrolling
+- Added comprehensive keyboard shortcuts (S, R, A, C, T, ESC)
+- Full screen canvas with better zoom and pan controls
+- Direct vertex selection for manual addition mode
+- Improved performance with native drawing operations
+
 # External Dependencies
 
 ## Core Frameworks
-- **Streamlit**: Web application framework for the user interface and session management
-- **streamlit-drawable-canvas**: Interactive canvas component for graph visualization and user interactions
+- **Tkinter**: Native Python GUI framework for desktop application interface
+- **TTK**: Themed Tkinter widgets for modern appearance
 
 ## Mathematical and Scientific Libraries
 - **NumPy**: Mathematical operations, vector calculations, and geometric computations
 - **JSON**: Data serialization for graph import/export functionality
+- **Math**: Standard mathematical functions for geometric calculations
 
 ## Rendering and Visualization
-- **streamlit-drawable-canvas**: Provides the interactive drawing surface with mouse interaction capabilities
-- **Custom Canvas Rendering**: SVG-based drawing commands for vertices, edges, and labels
+- **Tkinter Canvas**: Native canvas widget for graph visualization with direct drawing operations
+- **Custom Mouse/Keyboard Handling**: Native event processing for responsive user interactions
 
 ## Development Dependencies
-The application is designed to be lightweight with minimal external dependencies, relying primarily on Streamlit's built-in capabilities and NumPy for mathematical operations. The modular architecture allows for easy integration of additional visualization libraries or geometric constraint solvers if needed.
+The application is designed to be lightweight using only Python standard library components (Tkinter) plus NumPy for mathematical operations. This eliminates web framework dependencies and provides better performance for desktop use.
