@@ -1,0 +1,87 @@
+You are a graph visualization software architect and computational geometry expert.
+Design and implement a production-grade graphical application that allows users to dynamically draw and interact with a planar triangulated graph using mouse and keyboard commands. The system must be capable of handling large graphs (≥10,000 vertices), maintaining valid planarity and visual clarity at all times.
+
+🖥️ Core Requirements
+🎯 Initial State:
+The program starts by creating a triangle with 3 vertices: V1, V2, V3.
+➕ Vertex Addition:
+Users can add vertices via the A or R commands.
+New vertices must:
+Touch at least two contiguous vertices on the graph’s current periphery
+Be placed outside the current graph
+Not intersect or overlap with other vertices or edges
+When adding a vertex:
+User selects two extreme periphery vertices Vp and Vq in clockwise order.
+The vertex will connect to Vp, Vq, and all vertices in between.
+Its position is computed geometrically to maintain convexity and uniform edge lengths.
+Redraw logic must be applied after addition (see below).
+🔁 Redraw Logic:
+After adding a vertex, perform a redraw:
+Rebalance angular spacing between connected vertices
+Avoid sharp angles (maintain >60º where possible)
+Ensure uniform edge lengths (within ±20%)
+Adjust vertex positions to maintain convex contour
+Rescale if vertex label diameter increases due to index growth
+
+🔧 Graph Representation
+Graph stored internally as:
+Adjacency list or matrix (with optional edge metadata)
+Dynamic periphery set
+Vertex struct: ID, (x, y), color index (1–4), diameter, label
+Color values are natural numbers 1–4, each mapped to a color via a user-defined palette
+All graph commands must validate:
+No edge crossings
+No overlapping nodes or intersections
+Valid connectivity rules
+
+🖱️ User Interaction Commands
+pgsql
+CopyEdit
+S: Start base triangle (V1–V2–V3)
+R: Add random vertex to periphery
+A: Add vertex manually (select Vp, then Vq)
+Gm: Hide all vertices with index > m
+Z+: Zoom in (via mouse scroll)
+Z-: Zoom out
+C: Center and fit graph to screen
+T: Toggle vertex display between color or index
+Left Mouse + Drag: Pan graph
+Right Mouse: (To be implemented as needed)
+
+
+🧠 Layout & Drawing Logic
+Each vertex is drawn as a circle (“ball”):
+Filled with Color 2, outline in Color 1
+Diameter adjusts based on label size
+Each edge is a “pipe”:
+May be curved to reduce overlap
+Evenly spaced where possible
+Always prioritize convexity and aesthetic compaction
+Use anti-overlap and no-intersection logic during redraw
+
+💾 Performance and Validation
+Target: 10,000+ vertices
+Validate every command:
+Geometry constraints
+Index bounds
+Proper periphery references
+Automatically apply redraw and compact layout after every new vertex
+
+📦 Deliverables
+Full source code with modules:
+graph_model.py: graph + periphery logic
+geometry.py: placement + angle calculations
+gui.py: drawing, mouse interaction, rendering
+commands.py: key bindings and actions
+.env or settings file with color palette
+Test cases for vertex addition and redraw
+README with setup, run instructions, and usage examples
+Optional: Save/load graph to JSON
+
+Please provide:
+High-level architecture overview
+Full implementation or pseudocode structure
+GUI layout design suggestion (Tkinter or PyQt preferred)
+Redraw algorithm logic with geometric formulas
+Sample of command execution flow (e.g., vertex addition and redraw)
+Validation functions and visual spacing logic
